@@ -1,7 +1,7 @@
 #ifndef MODELOBJ_IZ6KZI5P
 #define MODELOBJ_IZ6KZI5P
 
-#include <GL/glew.h>
+#include "utils/Obj.hpp"
 #include "utils/Texture.hpp"
 
 class ShaderProgram;
@@ -15,10 +15,9 @@ class ModelObj
         void draw();
         ShaderProgram& getShader();
     private:
+        Obj obj;
         bool hasTexture;
-        GLuint vbo;
         GLuint vao;
-        int faceNb;
         ShaderProgram& shader;
         Texture& texture;
 };

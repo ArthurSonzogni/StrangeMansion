@@ -105,7 +105,14 @@ void Application::run() {
     //Make the window's context current
     glfwMakeContextCurrent(window);
 
+    auto timePrevious = (float)glfwGetTime();
+
     while( state == stateRun ) {
+
+        deltaTime = (float)glfwGetTime() - timePrevious;
+        time+=deltaTime;
+        timePrevious = (float)glfwGetTime();
+
         // execute the frame code
         loop();
 

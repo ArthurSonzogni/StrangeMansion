@@ -14,11 +14,11 @@ out vec2 fTexCoord;
 
 void main()
 {
-    vec4 worldPos = model * view * vec4(position,1.0);
+    vec4 worldPos = view * model * vec4(position,1.0);
 
     fPosition = worldPos.xyz;
     fTexCoord = texCoord;
-    fNormal   = ( model * view * vec4(normal,0.0)).xyz;
+    fNormal   = ( view * model * vec4(normal,0.0)).xyz;
 
     gl_Position = projection * worldPos;
 }
