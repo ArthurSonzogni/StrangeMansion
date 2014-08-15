@@ -1,3 +1,6 @@
+#ifndef APPLICATION_JX8NA5Y9
+#define APPLICATION_JX8NA5Y9
+
 #include "utils/Singleton.hpp"
 #include <string>
 
@@ -55,3 +58,5 @@ class Application
     virtual void loop();
 
 };
+
+#endif /* end of include guard: APPLICATION_JX8NA5Y9 */

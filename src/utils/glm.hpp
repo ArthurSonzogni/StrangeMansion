@@ -4,6 +4,8 @@
 //#pragma GCC diagnostic ignored "-Wstrict-aliasing"
 //#endif
 
+#ifndef GLM_SY6DSF7B
+#define GLM_SY6DSF7B
 
 #define GLM_FORCE_RADIANS
 #include <glm/glm.hpp>
@@ -15,3 +17,5 @@
 #include <glm/gtc/matrix_access.hpp>
 #include <glm/gtx/string_cast.hpp>
 #include <glm/gtx/color_space.hpp>
+
+#endif /* end of include guard: GLM_SY6DSF7B */

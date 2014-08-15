@@ -112,7 +112,6 @@ void Application3D::loop()
         screenObj.getShader().setUniform("colorMap",1);
         screenObj.getShader().setUniform("normalMap",2);
         static float blur = 1.0;
-        cout<<blur<<endl;
         if (Input::isKeyHold(GLFW_KEY_A)) blur *= 1.01;
         if (Input::isKeyHold(GLFW_KEY_B)) blur *= 0.99;
 

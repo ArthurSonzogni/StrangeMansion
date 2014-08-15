@@ -1,3 +1,5 @@
+#ifndef APPLICATION3D_3KYVM1W4
+#define APPLICATION3D_3KYVM1W4
 #include "system/Application.hpp"
 #include "graphic/FrameBuffer.hpp"
 #include "graphic/ModelObj.hpp"
@@ -18,3 +20,5 @@ class Application3D : public Application
         GLuint texture;
         Level level;
 };
+
+#endif /* end of include guard: APPLICATION3D_3KYVM1W4 */
