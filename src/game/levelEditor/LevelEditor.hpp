@@ -48,6 +48,15 @@ class LevelEditor : public Application
 
         glm::mat4 projection;
         glm::mat4 view;
+
+        glm::vec3 mouseIntersectCurrentPlan(glm::vec2 mouse);
+
+        void step();
+        void draw();
+        bool drawingMode;
+        
+        int currentRotation;
+        std::string currentBlock;
 };
 
 #endif /* end of include guard: LEVELEDITOR_APETXIAH */

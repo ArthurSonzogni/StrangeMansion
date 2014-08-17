@@ -6,6 +6,7 @@
 #include "utils/glError.hpp"
 #include "utils/Texture.hpp"
 #include "system/Input.hpp"
+#include <cmath>
 
 using namespace std;
 
@@ -19,7 +20,8 @@ LevelEditor::LevelEditor():
         "shader/compose.frag"
     )),
     framebuffer(width,height,3),
-    level("map/1")
+    level("map/1"),
+    drawingMode(false)
 {
     glCheckError(__FILE__,__LINE__);
     assignKeysMapping();
@@ -29,13 +31,75 @@ LevelEditor::LevelEditor():
         glm::vec3(0.0,0.0,3.0),
         glm::vec3(0.0,0.0,1.0)
     );
+    currentRotation = 0;
+    currentBlock="sol";
 }
 
-void LevelEditor::loop()
+void LevelEditor::step()
 {
     Input::update(getWindow());
     cameraEvent();
 
+    drawingMode = Input::isKeyHold(GLFW_KEY_SPACE);
+
+    float mouseX = 2.0*Input::mouseX()/getWidth() -1.0;
+    float mouseY = -2.0*Input::mouseY()/getHeight() +1.0;
+
+    // mouse put element
+    {
+        glm::vec3 v = mouseIntersectCurrentPlan({mouseX,mouseY});
+        int x = round(v.x);
+        int y = round(v.y);
+        int z = 0;
+        if (Input::isMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+            level.addBlock(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
+        else
+            level.addBlockGhost(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
+    }
+
+    // mouse translation
+    {
+        float limit = 0.9;
+        float power = 1.0 * getFrameDeltaTime() / (1.0 - limit);
+
+
+        glm::mat4 invView = glm::inverse(view);
+        glm::vec4 viewRay = invView * glm::vec4(0.0,0.0,1.0,0.0);
+        glm::vec4 rightRay = invView* glm::vec4(1.0,0.0,0.0,0.0);
+
+        // projection
+        viewRay.z = 0;
+        viewRay = power * glm::normalize(viewRay);
+
+        // projection
+        rightRay.z = 0;
+        rightRay = power * glm::normalize(rightRay);
+
+        if (mouseX<-limit) view = glm::translate(view,-(mouseX-limit)*glm::vec3(rightRay));
+        if (mouseX>+limit) view = glm::translate(view,-(mouseX+limit)*glm::vec3(rightRay));
+        if (mouseY<-limit) view = glm::translate(view,+(mouseY-limit)*glm::vec3(viewRay));
+        if (mouseY>+limit) view = glm::translate(view,+(mouseY+limit)*glm::vec3(viewRay));
+    }
+
+    if (Input::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
+        currentRotation = (currentRotation + 1) % 4;
+
+    if (Input::isKeyPressed(GLFW_KEY_TAB))
+    {
+        static int i = 0;
+        switch(i++%3)
+        {
+            case 0 :  currentBlock = "sol"; break;
+            case 1 :  currentBlock = "corner"; break;
+            case 2 :  currentBlock = "wall"; break;
+            default: break;
+        }
+        cout<<"implemente me"<<endl;
+    }
+}
+
+void LevelEditor::draw()
+{
     //=================================
     framebuffer.bindToWrite();
 
@@ -46,11 +110,6 @@ void LevelEditor::loop()
 
     static float t=0;
     t+=getFrameDeltaTime();
-    grid.getShader().use();
-    grid.getShader().setUniform("projection", projection);
-    grid.getShader().setUniform("view", view);
-    grid.getShader().setUniform("model", glm::mat4(1.0));
-    grid.draw();
     ShaderProgram& s(ShaderProgram::loadFromFile(
         "shader/geometryPass.vert",
         "shader/geometryPass.frag"
@@ -61,6 +120,15 @@ void LevelEditor::loop()
     s.setUniform("model", glm::mat4(1.0));
     level.draw();
 
+    // grid
+    //glDisable(GL_DEPTH_TEST);
+    grid.getShader().use();
+    grid.getShader().setUniform("projection", projection);
+    grid.getShader().setUniform("view", view);
+    grid.getShader().setUniform("model", glm::mat4(1.0));
+    grid.draw();
+    //glEnable(GL_DEPTH_TEST);
+
     if (Input::isKeyPressed(GLFW_KEY_SPACE)) {
         static int ii=0;
         ii++;
@@ -68,7 +136,7 @@ void LevelEditor::loop()
     }
 
     //=================================
-    if (Input::isKeyHold(GLFW_KEY_SPACE)) {
+    if (drawingMode) {
         framebuffer.drawToScreen();
     } else {
         screenObj.getShader().use();
@@ -77,10 +145,7 @@ void LevelEditor::loop()
         screenObj.getShader().setUniform("positionMap",0);
         screenObj.getShader().setUniform("colorMap",1);
         screenObj.getShader().setUniform("normalMap",2);
-        screenObj.getShader().setUniform("lightDir",glm::vec3(view*glm::vec4(0.0,0.0,-1.0,0.0)));
-        static float blur = 1.0;
-        if (Input::isKeyHold(GLFW_KEY_A)) blur *= 1.01;
-        if (Input::isKeyHold(GLFW_KEY_B)) blur *= 0.99;
+        screenObj.getShader().setUniform("lightDir",glm::normalize(glm::vec3(view*glm::vec4(2.0,0.0,-1.0,0.0))));
 
 
         //glDepthMask(GL_FALSE);
@@ -91,6 +156,13 @@ void LevelEditor::loop()
         
         screenObj.draw();
     }
+
+}
+
+void LevelEditor::loop()
+{
+    step();
+    draw();
 }
 
 void LevelEditor::cameraEvent()
@@ -112,7 +184,7 @@ void LevelEditor::cameraEvent()
     if (Input::isKeyHold(keys[KEY_CAMERA_DOWN]))
         view = glm::translate(glm::mat4(1.0),glm::vec3(0.0,+tDelta,0.0))*view;
 
-    // rotation
+    // currentRotation
     if (Input::isKeyHold(keys[KEY_CAMERA_TURN_XN]))
         view = glm::rotate(glm::mat4(1.0),rDelta,glm::vec3(-1.0,0.0,0.0))*view;
     if (Input::isKeyHold(keys[KEY_CAMERA_TURN_XP]))
@@ -125,6 +197,7 @@ void LevelEditor::cameraEvent()
         view = glm::rotate(glm::mat4(1.0),rDelta,glm::vec3(0.0,0.0,-1.0))*view;
     if (Input::isKeyHold(keys[KEY_CAMERA_TURN_ZP]))
         view = glm::rotate(glm::mat4(1.0),rDelta,glm::vec3(0.0,0.0,+1.0))*view;
+
 
 }
 
@@ -145,4 +218,17 @@ void LevelEditor::assignKeysMapping()
     keys[KEY_CAMERA_TURN_YP] = GLFW_KEY_L;
     keys[KEY_CAMERA_TURN_ZN] = GLFW_KEY_U;
     keys[KEY_CAMERA_TURN_ZP] = GLFW_KEY_O;
+}
+
+glm::vec3 LevelEditor::mouseIntersectCurrentPlan(glm::vec2 mouse)
+{
+    glm::mat4 inverse = glm::inverse(projection*view);
+    glm::vec4 m1 = inverse*glm::vec4(mouse.x,mouse.y,+0.0,1.0);
+    glm::vec4 m2 = inverse*glm::vec4(mouse.x,mouse.y,+1.0,1.0);
+
+    m1 = m1/m1.w;
+    m2 = m2/m2.w;
+
+    float lambda = (m1.z+0.5)/(m1.z-m2.z);
+    return glm::vec3(m1 + (m2-m1) * lambda);
 }

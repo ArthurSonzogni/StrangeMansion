@@ -44,8 +44,12 @@ void main()
     //}
     //l/=(5*5);
 
-    float light = -dot(normal,lightDir);
-    light = clamp(light,0.0,1.0) * 0.9 + 0.1;
+    float diffuseCoef  = max(0,-dot(normal,lightDir));
+    float specularCoef = max(0,-dot(reflect(normalize(position),normal),lightDir));
+    specularCoef = specularCoef*specularCoef;
+    specularCoef = specularCoef*specularCoef;
+    specularCoef = specularCoef*specularCoef;
+    float light = specularCoef*0.5 + diffuseCoef*0.7 + 0.3;
     ////light = int(light*10)/10.0;
 
     //float lll = -l*1000.0;

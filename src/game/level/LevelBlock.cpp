@@ -118,7 +118,15 @@ LevelBlock& LevelBlock::loadFromName(std::string name)
         loadAllNames();
         namesLoaded = true;
     }
-    return loadFromFile("block/sol.block");
+    auto it = levelBlockByNames.find(name);
+    if (it != levelBlockByNames.end())
+    {
+        return *(it->second);
+    }
+    else
+    {
+        throw Error(__LINE__,__FILE__,"The block "+name+" doesn't exist");
+    }
 }
 
 void LevelBlock::loadAllNames()

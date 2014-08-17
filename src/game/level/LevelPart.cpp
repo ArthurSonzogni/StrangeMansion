@@ -9,6 +9,7 @@
 
 using namespace std;
 
+#define M_PI 3.14159265358979323846f
 
 bool LevelBlockTransformed::sortByTexture(const LevelBlockTransformed* a, const LevelBlockTransformed* b)
 {
@@ -19,7 +20,9 @@ LevelPart::LevelPart(const string& filename):
     shader(ShaderProgram::loadFromFile(
         "shader/geometryPass.vert",
         "shader/geometryPass.frag"
-    ))
+    )),
+    vbo(0),
+    vao(0)
 {
     ifstream file;
     file.open(filename);
@@ -48,15 +51,7 @@ LevelPart::LevelPart(const string& filename):
             string blockName;
             float x,y,z,rx,ry,rz;
             sline >> blockName >> x >> y >> z >> rx >> ry >> rz;
-            glm::mat4 transformation(1.0);
-            transformation = glm::rotate(transformation,rx,{1.f,0.f,0.f});
-            transformation = glm::rotate(transformation,ry,{0.f,1.f,0.f});
-            transformation = glm::rotate(transformation,rz,{0.f,0.f,1.f});
-            transformation = glm::translate(transformation,{x,y,z});
-            levelBlockTransformed.push_back({
-                LevelBlock::loadFromName(blockName),
-                transformation
-            });
+            addBlockInternal(blockName,x,y,z,rx,ry,rz);
         }
         else
         {
@@ -76,6 +71,8 @@ LevelPart::LevelPart(const string& filename):
 
 void LevelPart::build()
 {
+    deleteBuffer();
+
     // sort levelBlock by texture
     vector<LevelBlockTransformed*> sortedLevelBlockTransformed;
     for(auto& it : levelBlockTransformed)
@@ -89,9 +86,9 @@ void LevelPart::build()
     );
 
     // build the vbo vector and texture vector
-    texture.empty();
+    texture.clear();
     texture.push_back(TextureContainer( Texture::loadFromFile("texture/texture.png"),0,0));
-    vertice.empty();
+    vertice.clear();
     int index = 0;
     for(auto it : sortedLevelBlockTransformed)
     {
@@ -154,7 +151,48 @@ void LevelPart::draw()
     shader.unuse();
 }
 
+void LevelPart::addBlockInternal(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
+{
+    glm::mat4 transformation(1.0);
+    transformation = glm::translate(transformation,{x,y,z});
+    transformation = glm::rotate(transformation,rz*M_PI,{0.f,0.f,1.f});
+    transformation = glm::rotate(transformation,ry*M_PI,{0.f,1.f,0.f});
+    transformation = glm::rotate(transformation,rx*M_PI,{1.f,0.f,0.f});
+    levelBlockTransformed.push_back({
+        LevelBlock::loadFromName(blockName),
+        transformation
+    });
+}
+
+void LevelPart::addBlockGhost(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
+{
+    if (levelBlockTransformed.size() == 0) return;
+    levelBlockTransformed.pop_back();
+    addBlockInternal(blockName,x,y,z,rx,ry,rz);
+    build();
+}
+
+void LevelPart::addBlock(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
+{
+    addBlockInternal(blockName,x,y,z,rx,ry,rz);
+    build();
+}
+
 LevelPart::~LevelPart()
 {
+    deleteBuffer();
+}
 
+void LevelPart::deleteBuffer()
+{
+    if (vbo)
+    {
+        glDeleteBuffers(1,&vbo);
+        vbo = 0;
+    }
+    if (vao)
+    {
+        glDeleteVertexArrays(1,&vao);
+        vao = 0;
+    }
 }

@@ -8,9 +8,11 @@ layout (location = 2) out vec4 outNormal;
 
 in vec4 fNormal;
 
+uniform vec4 color = vec4(0.5);
+
 void main()
 {
     outWorldPos = vec4(fPosition,1.0);
-    outDiffuse  = vec4(1.0);
+    outDiffuse  = color;
     outNormal   = fNormal;
 } 

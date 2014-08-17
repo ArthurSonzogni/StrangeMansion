@@ -35,10 +35,11 @@ class LevelPart
         LevelPart(const std::string& filename);
         ~LevelPart();
         void draw();
+        void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
+        void addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
 
     private:
 
-        std::vector<LevelBlockTransformed> levelBlockTransformed;
 
         struct TextureContainer
         {
@@ -71,4 +72,9 @@ class LevelPart
 
         std::vector<TextureContainer> texture;
         std::vector<GLContainer::Vertice> vertice;
+        std::vector<LevelBlockTransformed> levelBlockTransformed;
+
+        void deleteBuffer();
+        void addBlockInternal(const std::string& blockName, float x, float y, float z, float rx, float ry, float rz);
+
 };

@@ -3,6 +3,7 @@
 #include <iostream>
 #include <fstream>
 #include <sstream>
+#include "utils/Error.hpp"
 
 using namespace std;
 
@@ -53,8 +54,31 @@ Level::~Level()
     
 void Level::draw()
 {
+    //glEnable(GL_CULL_FACE);
     for(auto l : levelPart)
     {
         l->draw();
     }
 }
+
+void Level::addLevelPart(const std::string& name)
+{
+    throw Error(__LINE__,__FILE__,"Not implemented");
+}
+void Level::removeLevelPart(const std::string& name)
+{
+    throw Error(__LINE__,__FILE__,"Not implemented");
+}
+void Level::selectCurrentLevelPart(int n)
+{
+    throw Error(__LINE__,__FILE__,"Not implemented");
+}
+void Level::addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
+{
+    levelPart[0]->addBlockGhost(name,x,y,z,rx,ry,rz);
+}
+void Level::addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
+{
+    levelPart[0]->addBlock(name,x,y,z,rx,ry,rz);
+}
+

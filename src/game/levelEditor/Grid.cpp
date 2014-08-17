@@ -7,8 +7,8 @@ using namespace std;
 
 Grid::Grid():
     shader(ShaderProgram::loadFromFile(
-        "shader/geometryPassWhite.vert",
-        "shader/geometryPassWhite.frag"
+        "shader/geometryPassColor.vert",
+        "shader/geometryPassColor.frag"
     ))
 {
     vbo=0;
@@ -46,21 +46,21 @@ void Grid::setSubvision(int _r)
     vector<GLfloat> vertices;
     for(int x = -r; x<=r; ++x)
     {
-        vertices.push_back(x);
-        vertices.push_back(-r);
-        vertices.push_back(0.0);
-        vertices.push_back(x);
-        vertices.push_back(r);
-        vertices.push_back(0.0);
+        vertices.push_back(x-0.5);
+        vertices.push_back(-r-0.5);
+        vertices.push_back(-0.5);
+        vertices.push_back(x-0.5);
+        vertices.push_back(r-0.5);
+        vertices.push_back(-0.5);
     }
     for(int y = -r; y<=r; ++y)
     {
-        vertices.push_back(-r);
-        vertices.push_back(y);
-        vertices.push_back(0.0);
-        vertices.push_back(r);
-        vertices.push_back(y);
-        vertices.push_back(0.0);
+        vertices.push_back(-r-0.5);
+        vertices.push_back(y-0.5);
+        vertices.push_back(-0.5);
+        vertices.push_back(r-0.5);
+        vertices.push_back(y-0.5);
+        vertices.push_back(-0.5);
     }
 
     // vbo allocation

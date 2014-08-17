@@ -34,6 +34,7 @@ void Input::update(GLFWwindow* window)
         it->second.second = it->second.first;
         it->second.first  = glfwGetMouseButton(window,it->first);
     }
+    glfwGetCursorPos(window, &m_mouseX, &m_mouseY);
 }
 
 
