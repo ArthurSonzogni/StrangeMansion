@@ -9,8 +9,9 @@ class LevelPart;
 class Level
 {
     public:
-        Level(const std::string& file);
+        Level(const std::string& folder);
         ~Level();
+
         void draw();
 
 
@@ -20,9 +21,11 @@ class Level
         void selectCurrentLevelPart(int n);
         void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
+        void save();
 
     private:
         std::vector<LevelPart*> levelPart;
+        const std::string& folder;
 };
 
 #endif /* end of include guard: LEVEL_2OHC8ATE */

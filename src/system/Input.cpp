@@ -17,6 +17,10 @@ double m_mouseY;
 
 void Input::update(GLFWwindow* window)
 {
+    // sticky mouse and keyboard to be sure every press/release is recorded.
+    glfwSetInputMode(window,GLFW_STICKY_KEYS,true);
+    glfwSetInputMode(window,GLFW_STICKY_MOUSE_BUTTONS,true);
+
     // get screen dimension
     int width, height;
     glfwGetWindowSize(window, &width, &height);
@@ -28,12 +32,14 @@ void Input::update(GLFWwindow* window)
         it->second.first  = glfwGetKey(window,it->first);
     }
 
-    // update mouse
+    // update mouse buttons
     for(auto it = mouseState.begin(); it!=mouseState.end(); ++it)
     {
         it->second.second = it->second.first;
         it->second.first  = glfwGetMouseButton(window,it->first);
     }
+
+    // update mouse coords
     glfwGetCursorPos(window, &m_mouseX, &m_mouseY);
 }
 

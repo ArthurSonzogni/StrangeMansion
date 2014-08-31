@@ -8,21 +8,36 @@
 using namespace std;
 
 
-FrameBuffer::FrameBuffer(unsigned int width,unsigned int height, unsigned int colorAttachment):
+FrameBuffer::FrameBuffer(unsigned int _width,unsigned int _height, unsigned int colorAttachment):
+    width(_width),
+    height(_height),
     colorTextures(colorAttachment)
 {
+    allocate();
+}
+
+FrameBuffer::~FrameBuffer()
+{
+    disallocate();
+}
+
+void FrameBuffer::allocate()
+{
+    // disallocate the previous OpenGL objects
+    disallocate();
+
     // create the framebuffer object
     glGenFramebuffers(1,&fbo);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER,fbo);
     cout<<"fbo="<<fbo<<endl;
 
     // create all the textures buffers
-    glGenTextures(colorAttachment,&colorTextures[0]);
+    glGenTextures(colorTextures.size(),&colorTextures[0]);
     glGenTextures(1,&depthTexture);
     cout<<depthTexture<<endl;
 
     // non-depth
-    for (unsigned int i = 0 ; i<colorAttachment; i++)
+    for (unsigned int i = 0 ; i<colorTextures.size(); i++)
     {
         cout<<colorTextures[i]<<endl;
         glBindTexture(GL_TEXTURE_2D, colorTextures[i]);
@@ -37,12 +52,12 @@ FrameBuffer::FrameBuffer(unsigned int width,unsigned int height, unsigned int co
     glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT32F, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
     glFramebufferTexture2D(GL_DRAW_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, GL_TEXTURE_2D, depthTexture, 0);
 
-    GLenum DrawBuffers[colorAttachment];
-    for(unsigned int i = 0 ; i<colorAttachment ; i++) 
+    GLenum DrawBuffers[colorTextures.size()];
+    for(unsigned int i = 0 ; i<colorTextures.size() ; i++) 
     {
         DrawBuffers[i] = GL_COLOR_ATTACHMENT0 + i; 
     }
-    glDrawBuffers(colorAttachment, DrawBuffers);
+    glDrawBuffers(colorTextures.size(), DrawBuffers);
 
     // test if opengl accept the configuration
     GLenum status = glCheckFramebufferStatus(GL_FRAMEBUFFER);
@@ -66,11 +81,29 @@ FrameBuffer::FrameBuffer(unsigned int width,unsigned int height, unsigned int co
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
 }
 
-FrameBuffer::~FrameBuffer()
+void FrameBuffer::recreate(unsigned int _width,unsigned int _height)
 {
-    glDeleteRenderbuffers(1,&fbo);
-    glDeleteTextures(colorTextures.size(),&colorTextures[0]);
-    glDeleteTextures(1,&depthTexture);
+   width = _width;
+   height = _height;
+   allocate();
+}
+
+void FrameBuffer::disallocate()
+{
+    if (fbo)
+    {
+        glDeleteRenderbuffers(1,&fbo) ;
+        fbo=0;
+    }
+    if (colorTextures.size()>0 and colorTextures[0])
+    {
+        glDeleteTextures(colorTextures.size(),&colorTextures[0]);
+    }
+    if (depthTexture)
+    {
+        glDeleteTextures(1,&depthTexture);
+        depthTexture = 0;
+    }
 }
 
 void FrameBuffer::bindToWrite()

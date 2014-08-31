@@ -19,7 +19,8 @@ class ShaderProgram;
 struct LevelBlockTransformed
 {
     LevelBlock block;
-    glm::mat4 transformation;
+    glm::vec3 translation;
+    glm::vec3 rotation;
     static bool sortByTexture(const LevelBlockTransformed* a, const LevelBlockTransformed* b);
 };
 
@@ -37,6 +38,7 @@ class LevelPart
         void draw();
         void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
+        void save();
 
     private:
 
@@ -76,5 +78,7 @@ class LevelPart
 
         void deleteBuffer();
         void addBlockInternal(const std::string& blockName, float x, float y, float z, float rx, float ry, float rz);
+
+        const std::string filename;
 
 };

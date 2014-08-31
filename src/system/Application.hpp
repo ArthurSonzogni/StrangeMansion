@@ -10,52 +10,57 @@ class Application
 {
     public:
 
-    Application();
+        Application();
 
-    static Application& getInstance();
+        static Application& getInstance();
 
-    // get the window id
-    GLFWwindow* getWindow() const;
+        // get the window id
+        GLFWwindow* getWindow() const;
 
-    // window control
-    void exit();
+        // window control
+        void exit();
 
-    // delta time between frame and time from beginning
-    float getFrameDeltaTime() const;
-    float getTime() const;
+        // delta time between frame and time from beginning
+        float getFrameDeltaTime() const;
+        float getTime() const;
 
-    // application run
-    void run();
+        // application run
+        void run();
 
-    // Application informations
-    int getWidth();
-    int getHeight();
+        // Application informations
+        int getWidth();
+        int getHeight();
+        float getWindowRatio();
+        bool windowDimensionChange();
 
     private:
 
-	Application& operator=(const Application&) {return *this;}
+        Application& operator=(const Application&) {return *this;}
 
-    GLFWwindow* window;
-    float time;
-    float deltaTime;
+        GLFWwindow* window;
+        float time;
+        float deltaTime;
 
-    enum State {
-        stateReady,
-        stateRun,
-        stateExit
-    };
+        enum State {
+            stateReady,
+            stateRun,
+            stateExit
+        };
 
-    State state;
+        State state;
+
+        int width;
+        int height;
+        bool dimensionChange;
+        void detectWindowDimensionChange();
 
     protected:
 
-	Application(const Application&) {};
+        Application(const Application&) {};
 
-    std::string title;
-    int width;
-    int height;
+        std::string title;
 
-    virtual void loop();
+        virtual void loop();
 
 };
 

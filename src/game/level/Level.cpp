@@ -7,7 +7,8 @@
 
 using namespace std;
 
-Level::Level(const string& folder)
+Level::Level(const string& _folder):
+    folder(_folder)
 {
     cout<<"[Loading] "<<folder<<endl;
     ifstream file;
@@ -82,3 +83,7 @@ void Level::addBlock(const std::string& name, float x, float y, float z, float r
     levelPart[0]->addBlock(name,x,y,z,rx,ry,rz);
 }
 
+void Level::save()
+{
+    levelPart[0]->save();
+}

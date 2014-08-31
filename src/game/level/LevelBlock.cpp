@@ -89,7 +89,7 @@ const vector<GLContainer::Vertice>&  LevelBlock::getVertices() const
 {
    return vertices;
 }
-const std::string&  LevelBlock::getName() const
+const std::string& LevelBlock::getName() const
 {
     return name;
 }

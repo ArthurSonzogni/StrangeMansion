@@ -75,7 +75,6 @@ Application::Application():
     glEnable (GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
 
-
 }
 
 GLFWwindow* Application::getWindow() const
@@ -109,9 +108,13 @@ void Application::run() {
 
     while( state == stateRun ) {
 
+        // compute new time and delta time
         deltaTime = (float)glfwGetTime() - timePrevious;
         time+=deltaTime;
         timePrevious = (float)glfwGetTime();
+        
+        // detech window related changes
+        detectWindowDimensionChange();
 
         // execute the frame code
         loop();
@@ -126,6 +129,18 @@ void Application::run() {
     glfwTerminate();
 }
 
+void Application::detectWindowDimensionChange()
+{
+    int w,h;
+    glfwGetWindowSize(getWindow(), &w, &h);
+    dimensionChange = ( w!= width or h != height) ;
+    if (dimensionChange) 
+    {
+        width = w;
+        height = h;
+        glViewport(0, 0, width, height);
+    }
+}
 void Application::loop()
 {
     cout<<"[INFO] : loop"<<endl;
@@ -139,4 +154,14 @@ int Application::getWidth()
 int Application::getHeight()
 {
     return height;
+}
+
+float Application::getWindowRatio()
+{
+    return float(width)/float(height);
+}
+
+bool Application::windowDimensionChange()
+{
+    return dimensionChange;
 }

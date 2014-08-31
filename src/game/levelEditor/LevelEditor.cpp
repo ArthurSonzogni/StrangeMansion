@@ -19,13 +19,13 @@ LevelEditor::LevelEditor():
         "shader/compose.vert",
         "shader/compose.frag"
     )),
-    framebuffer(width,height,3),
+    framebuffer(getWidth(),getHeight(),3),
     level("map/1"),
     drawingMode(false)
 {
     glCheckError(__FILE__,__LINE__);
     assignKeysMapping();
-    projection = glm::perspective(70.0f, 640.f/460.f, 0.1f, 100.f);
+    projection = glm::perspective(70.0f, getWindowRatio(), 0.1f, 100.f);
     view  = glm::lookAt(
         glm::vec3(0.0,6.0,6.0),
         glm::vec3(0.0,0.0,3.0),
@@ -37,6 +37,13 @@ LevelEditor::LevelEditor():
 
 void LevelEditor::step()
 {
+    if (windowDimensionChange())
+    {
+        framebuffer.recreate(getWidth(),getHeight());
+        projection = glm::perspective(70.0f, getWindowRatio(), 0.1f, 100.f);
+        cout<<getWidth()<<" "<<getHeight()<<endl;
+    }
+
     Input::update(getWindow());
     cameraEvent();
 
@@ -51,7 +58,7 @@ void LevelEditor::step()
         int x = round(v.x);
         int y = round(v.y);
         int z = 0;
-        if (Input::isMousePressed(GLFW_MOUSE_BUTTON_LEFT))
+        if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
             level.addBlock(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
         else
             level.addBlockGhost(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
@@ -81,6 +88,14 @@ void LevelEditor::step()
         if (mouseY>+limit) view = glm::translate(view,+(mouseY+limit)*glm::vec3(viewRay));
     }
 
+    // saving
+    {
+        if (Input::isKeyPressed(keys[KEY_SAVE]))
+        {
+            level.save();
+        }
+    }
+
     if (Input::isMousePressed(GLFW_MOUSE_BUTTON_RIGHT))
         currentRotation = (currentRotation + 1) % 4;
 
@@ -94,7 +109,6 @@ void LevelEditor::step()
             case 2 :  currentBlock = "wall"; break;
             default: break;
         }
-        cout<<"implemente me"<<endl;
     }
 }
 
@@ -218,6 +232,7 @@ void LevelEditor::assignKeysMapping()
     keys[KEY_CAMERA_TURN_YP] = GLFW_KEY_L;
     keys[KEY_CAMERA_TURN_ZN] = GLFW_KEY_U;
     keys[KEY_CAMERA_TURN_ZP] = GLFW_KEY_O;
+    keys[KEY_SAVE] = GLFW_KEY_Z;
 }
 
 glm::vec3 LevelEditor::mouseIntersectCurrentPlan(glm::vec2 mouse)

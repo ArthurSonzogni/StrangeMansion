@@ -18,7 +18,7 @@ Application3D::Application3D():
         "shader/compose.vert",
         "shader/compose.frag"
     )),
-    framebuffer(width,height,3),
+    framebuffer(getWidth(),getHeight(),3),
     level("map/1")
 {
     glCheckError(__FILE__,__LINE__);

@@ -42,6 +42,7 @@ class LevelEditor : public Application
             KEY_CAMERA_TURN_YP,
             KEY_CAMERA_TURN_ZN,
             KEY_CAMERA_TURN_ZP,
+            KEY_SAVE
         };
         std::map<Keys,int> keys;
         void assignKeysMapping();
@@ -57,6 +58,7 @@ class LevelEditor : public Application
         
         int currentRotation;
         std::string currentBlock;
+
 };
 
 #endif /* end of include guard: LEVELEDITOR_APETXIAH */
