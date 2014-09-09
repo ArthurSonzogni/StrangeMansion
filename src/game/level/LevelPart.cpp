@@ -6,6 +6,8 @@
 #include "graphic/Shader.hpp"
 #include "utils/Error.hpp"
 #include <algorithm>
+#include "math/collision.hpp"
+#include <iostream>
 
 using namespace std;
 
@@ -53,13 +55,19 @@ LevelPart::LevelPart(const string& _filename):
             sline >> blockName >> x >> y >> z >> rx >> ry >> rz;
             addBlockInternal(blockName,x,y,z,rx,ry,rz);
         }
+        else if (firstWord == "portal")
+        {
+            string portalName;
+            float x,y,z,rx,ry,rz;
+            sline >> portalName >> x >> y >> z >> rx >> ry >> rz;
+            //addBlockInternal(portalName,x,y,z,rx,ry,rz);
+            cout<<"there is a portal"<<endl;
+        }
         else
         {
             stringstream err;
-            string error;
-            err<<"Can't parse:\""<<line<<"\" file:"<<filename<<" line:"<<line;
-            err>>error;
-            throw Error(__LINE__,__FILE__,error);
+            err<<"Can't parse:\""<<line<<"\" file:"<<filename<<" line:"<<lineNb;
+            throw Error(__LINE__,__FILE__,err.str());
         }
     }
     
@@ -71,6 +79,8 @@ LevelPart::LevelPart(const string& _filename):
 
 void LevelPart::build()
 {
+    glCheckError(__FILE__,__LINE__);
+
     deleteBuffer();
 
     // sort levelBlock by texture
@@ -141,19 +151,19 @@ void LevelPart::build()
 
 void LevelPart::draw()
 {
-    Texture& texture(Texture::loadFromFile(
-        "texture/texture.png"
-    ));
-    texture.bind(GL_TEXTURE0);
-    shader.setUniform("texture0",0);
+    //shader.setUniform("texture0",0);
 
     shader.use();
     glBindVertexArray(vao);
+    for(auto& t : texture)
+    {
+        t.texture.bind(GL_TEXTURE0);
         glDrawArrays(
             GL_TRIANGLES,      // mode
-            0,                 // first
-            verticeNb          // count
+            t.index,           // first
+            t.howMany          // count
         );
+    }
     glBindVertexArray(0);
     shader.unuse();
 }
@@ -217,4 +227,18 @@ void LevelPart::save()
             << endl;
     }
     myfile.close();
+}
+
+bool LevelPart::testBlock(const glm::vec3& p0,const glm::vec3& p1)
+{
+    unsigned int n = vertice.size();
+    for(unsigned int i = 0 ; i < n ; )
+    {
+        glm::vec3 t1 = vertice[i++].position;
+        glm::vec3 t2 = vertice[i++].position;
+        glm::vec3 t3 = vertice[i++].position;
+        if ( rayTriangleCollision(p0,p1,t1,t2,t3))
+            return true;
+    }
+    return false;
 }

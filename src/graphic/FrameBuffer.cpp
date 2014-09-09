@@ -79,6 +79,7 @@ void FrameBuffer::allocate()
 
     // restore default FBO
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glCheckError(__FILE__,__LINE__);
 }
 
 void FrameBuffer::recreate(unsigned int _width,unsigned int _height)
@@ -109,15 +110,21 @@ void FrameBuffer::disallocate()
 void FrameBuffer::bindToWrite()
 {
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, fbo);
+    glCheckError(__FILE__,__LINE__);
 }
 
 void FrameBuffer::bindToRead()
 {
+    glCheckError(__FILE__,__LINE__);
     glBindFramebuffer(GL_DRAW_FRAMEBUFFER, 0);
+    glCheckError(__FILE__,__LINE__);
     for (unsigned int i = 0 ; i < colorTextures.size(); i++) {
         glActiveTexture(GL_TEXTURE0 + i);
+        glCheckError(__FILE__,__LINE__);
         glBindTexture(GL_TEXTURE_2D, colorTextures[i]);
+        glCheckError(__FILE__,__LINE__);
     }
+    glCheckError(__FILE__,__LINE__);
 }
 
 void FrameBuffer::drawToScreen()
@@ -152,4 +159,5 @@ void FrameBuffer::drawToScreen()
             x=0;
         }
     }
+    glCheckError(__FILE__,__LINE__);
 }

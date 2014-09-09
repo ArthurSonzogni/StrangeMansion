@@ -37,6 +37,16 @@ LevelEditor::LevelEditor():
 
 void LevelEditor::step()
 {
+    // escape
+    if (Input::isKeyPressed(keys[KEY_ESCAPE]))
+        exit();
+    // fps
+    static float deltaMean = getFrameDeltaTime();
+    static int n = 0;
+    deltaMean = 0.9*deltaMean + 0.1*getFrameDeltaTime();
+    if (n++%100==0)
+        cout << "fps=" << (int)(1/deltaMean) << endl;
+
     if (windowDimensionChange())
     {
         framebuffer.recreate(getWidth(),getHeight());
@@ -110,6 +120,23 @@ void LevelEditor::step()
             default: break;
         }
     }
+
+    // triangle collision
+    {
+        //glm::mat4 inverse = glm::inverse(projection*view);
+        //glm::vec4 m1 = inverse*glm::vec4(mouseX,mouseY,+0.0,1.0);
+        //glm::vec4 m2 = inverse*glm::vec4(mouseX,mouseY,+1.0,1.0);
+
+        //m1 = m1/m1.w;
+        //m2 = m2/m2.w;
+
+        //glm::vec3 M1 = glm::vec3(m1);
+        //glm::vec3 M2 = glm::vec3(m2);
+
+        //cout << level.testBlock(M1,M2) << endl;
+    }
+
+
 }
 
 void LevelEditor::draw()
@@ -122,6 +149,7 @@ void LevelEditor::draw()
     glEnable(GL_DEPTH_TEST);
     glDisable(GL_BLEND);
 
+
     static float t=0;
     t+=getFrameDeltaTime();
     ShaderProgram& s(ShaderProgram::loadFromFile(
@@ -133,6 +161,7 @@ void LevelEditor::draw()
     s.setUniform("view", view);
     s.setUniform("model", glm::mat4(1.0));
     level.draw();
+
 
     // grid
     //glDisable(GL_DEPTH_TEST);
@@ -218,6 +247,7 @@ void LevelEditor::cameraEvent()
 
 void LevelEditor::assignKeysMapping()
 {
+    keys[KEY_ESCAPE] = GLFW_KEY_ESCAPE;
     keys[KEY_CAMERA_LEFT] = GLFW_KEY_A;
     keys[KEY_CAMERA_RIGHT] = GLFW_KEY_D;
     keys[KEY_CAMERA_FORWARD] = GLFW_KEY_W;

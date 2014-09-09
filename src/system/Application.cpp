@@ -75,6 +75,9 @@ Application::Application():
     glEnable (GL_DEPTH_TEST); // enable depth-testing
     glDepthFunc (GL_LESS); // depth-testing interprets a smaller value as "closer"
 
+    // vsync
+    //glfwSwapInterval(false);
+
 }
 
 GLFWwindow* Application::getWindow() const

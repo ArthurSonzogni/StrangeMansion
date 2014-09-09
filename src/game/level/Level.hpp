@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <string>
+#include "utils/glm.hpp"
 
 class LevelPart;
 
@@ -22,6 +23,7 @@ class Level
         void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void save();
+        bool testBlock(const glm::vec3 p0,const glm::vec3 p1);
 
     private:
         std::vector<LevelPart*> levelPart;

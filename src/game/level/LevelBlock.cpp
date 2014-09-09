@@ -5,10 +5,11 @@
 #include <map>
 #include <vector>
 #include "utils/file.hpp"
+#include "math/collision.hpp"
 
 using namespace std;
 
-bool LevelBlock::namesLoaded;
+bool LevelBlock::namesLoaded = false;
 
 LevelBlock::LevelBlock(string filename)
 {
@@ -140,3 +141,4 @@ void LevelBlock::loadAllNames()
         levelBlockByNames[levelBlock.getName()] = &levelBlock;
     }
 }
+

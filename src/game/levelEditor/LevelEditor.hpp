@@ -28,6 +28,7 @@ class LevelEditor : public Application
         void cameraEvent();
 
         enum Keys {
+            KEY_ESCAPE,
             KEY_CAMERA_LEFT,
             KEY_CAMERA_RIGHT,
             KEY_CAMERA_FORWARD,

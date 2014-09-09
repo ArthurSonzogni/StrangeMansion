@@ -4,6 +4,7 @@
 #include <fstream>
 #include <sstream>
 #include "utils/Error.hpp"
+#include "utils/glError.hpp"
 
 using namespace std;
 
@@ -86,4 +87,9 @@ void Level::addBlock(const std::string& name, float x, float y, float z, float r
 void Level::save()
 {
     levelPart[0]->save();
+}
+
+bool Level::testBlock(const glm::vec3 p0,const glm::vec3 p1)
+{
+    return levelPart[0]->testBlock(p0,p1);
 }

@@ -18,7 +18,7 @@ class ShaderProgram;
 //
 struct LevelBlockTransformed
 {
-    LevelBlock block;
+    LevelBlock& block;
     glm::vec3 translation;
     glm::vec3 rotation;
     static bool sortByTexture(const LevelBlockTransformed* a, const LevelBlockTransformed* b);
@@ -39,6 +39,8 @@ class LevelPart
         void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void save();
+
+        bool testBlock(const glm::vec3& p0,const glm::vec3& p1);
 
     private:
 
