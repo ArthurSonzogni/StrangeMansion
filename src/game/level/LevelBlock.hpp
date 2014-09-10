@@ -1,3 +1,6 @@
+#ifndef LEVELBLOCK_WBM7TV9Q
+#define LEVELBLOCK_WBM7TV9Q
+
 #include "graphic/GLContainer.hpp"
 #include "utils/Texture.hpp"
 #include <string>
@@ -27,3 +30,5 @@ class LevelBlock
         std::string name;
         Texture* texture;
 };
+
+#endif /* end of include guard: LEVELBLOCK_WBM7TV9Q */

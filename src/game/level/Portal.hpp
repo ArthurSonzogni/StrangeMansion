@@ -14,6 +14,8 @@
 
 class Portal
 {
+    public:
+
         static Portal& loadFromFile(std::string filename);
         static Portal& loadFromName(std::string name);
 
@@ -26,6 +28,7 @@ class Portal
         const glm::mat4& getTransformation() const;
 
     private:
+
         // constructor
         Portal(std::string filename);
 
@@ -33,7 +36,6 @@ class Portal
         LevelBlock* geometry;
         glm::mat4 transformation;
         std::string name;
-
 };
 
 #endif /* end of include guard: PORTAL_PGD0D86X */

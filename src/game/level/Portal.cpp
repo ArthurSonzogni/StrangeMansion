@@ -31,7 +31,7 @@ Portal& Portal::loadFromFile(std::string filename)
     auto it = loadedPortal.find(filename);
     if (it!=loadedPortal.end())
         return *(it->second);
-    
+
     Portal* portal = new Portal(filename);
     loadedPortal[filename] = portal;
     return *portal;
@@ -46,11 +46,13 @@ Portal::Portal(std::string filename)
         throw Error(__LINE__,__FILE__,"The file "+filename+" doesn't exist");
     }
 
-	//string line;
+    //string line;
     int lineNb = 0;
     string line;
 
-	while(getline(file,line))
+    transformation = glm::mat4(1.0);
+
+    while(getline(file,line))
     {
         lineNb++;
 
@@ -62,14 +64,27 @@ Portal::Portal(std::string filename)
 
         if (firstWord == "block")
         {
+            string blockName;
+            sline >> blockName;
+            geometry = &LevelBlock::loadFromName(blockName);
+        }
+        else if (firstWord == "name")
+        {
+            sline >> name; 
         }
         else if (firstWord == "translation")
         {
-
+            float x,y,z;
+            sline >> x >> y >> z;
+            transformation = glm::translate(transformation,{x,y,z});
         }
         else if (firstWord == "rotation")
         {
-
+            float rx,ry,rz;
+            sline >> rx >> ry >> rz;
+            transformation = glm::rotate(transformation,float(rz*M_PI),{0.f,0.f,1.f});
+            transformation = glm::rotate(transformation,float(ry*M_PI),{0.f,1.f,0.f});
+            transformation = glm::rotate(transformation,float(rx*M_PI),{1.f,0.f,0.f});
         }
     }
 }

@@ -75,9 +75,9 @@ void Level::selectCurrentLevelPart(int n)
 {
     throw Error(__LINE__,__FILE__,"Not implemented");
 }
-void Level::addBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
+void Level::drawBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
 {
-    levelPart[0]->addBlockGhost(name,x,y,z,rx,ry,rz);
+    levelPart[0]->drawBlockGhost(name,x,y,z,rx,ry,rz);
 }
 void Level::addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
 {
@@ -92,4 +92,9 @@ void Level::save()
 bool Level::testBlock(const glm::vec3 p0,const glm::vec3 p1)
 {
     return levelPart[0]->testBlock(p0,p1);
+}
+
+void Level::drawRecursivePortals(glm::mat4 const &viewMat, glm::mat4 const &projMat, size_t maxRecursionLevel, size_t recursionLevel)
+{
+
 }

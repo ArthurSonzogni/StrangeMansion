@@ -59,9 +59,9 @@ LevelPart::LevelPart(const string& _filename):
         {
             string portalName;
             float x,y,z,rx,ry,rz;
-            sline >> portalName >> x >> y >> z >> rx >> ry >> rz;
-            //addBlockInternal(portalName,x,y,z,rx,ry,rz);
-            cout<<"there is a portal"<<endl;
+            string from,to;
+            sline >> portalName >> from >> to >> x >> y >> z >> rx >> ry >> rz;
+            addPortal(portalName,from,to,x,y,z,rx,ry,rz);
         }
         else
         {
@@ -177,12 +177,76 @@ void LevelPart::addBlockInternal(const string& blockName, float x, float y, floa
     });
 }
 
-void LevelPart::addBlockGhost(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
+void LevelPart::drawBlockGhost(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
 {
-    if (levelBlockTransformed.size() == 0) return;
-    levelBlockTransformed.pop_back();
-    addBlockInternal(blockName,x,y,z,rx,ry,rz);
-    build();
+    // load the block named blockName
+    LevelBlock& block = LevelBlock::loadFromName(blockName);
+
+    // get its vertices and textures
+    const std::vector<GLContainer::Vertice>& blockVertices = block.getVertices();
+    Texture& texture = block.getTexture();
+
+    // create the verticeGhost array
+    vector<GLContainer::Vertice> verticeGhost;
+    for(auto& v : blockVertices)
+    {
+        GLContainer::Vertice vTransformed;
+
+        glm::mat4 transformation(1.0);
+        transformation = glm::translate(transformation,{x,y,z});
+        transformation = glm::rotate(transformation,float(rz*M_PI),{0.f,0.f,1.f});
+        transformation = glm::rotate(transformation,float(ry*M_PI),{0.f,1.f,0.f});
+        transformation = glm::rotate(transformation,float(rx*M_PI),{1.f,0.f,0.f});
+
+        glm::vec4 newPosition = (transformation) * glm::vec4(v.position,1.0);
+        glm::vec4 newNormal   = (transformation) * glm::vec4(v.normal  ,0.0);
+        verticeGhost.push_back( GLContainer::Vertice( glm::vec3(newPosition), glm::vec3(newNormal), v.texCoord )); 
+    }
+
+    //-----------------
+    // VBO/VAO creation
+    //-----------------
+
+    // vboGhost
+    glGenBuffers( 1, &vboGhost );
+    glBindBuffer(GL_ARRAY_BUFFER, vboGhost);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLContainer::Vertice)*verticeGhost.size(), &verticeGhost[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glCheckError(__FILE__,__LINE__);
+
+    // vaoGhost
+    glGenVertexArrays( 1, &vaoGhost);
+    glBindVertexArray(vaoGhost);
+
+        // vboGhost
+        glBindBuffer(GL_ARRAY_BUFFER,vboGhost);
+        shader.setAttribute("position", 3, GL_FALSE, 8, 0);
+        shader.setAttribute("normal"  , 3, GL_FALSE, 8, 3);
+        shader.setAttribute("texCoord", 2, GL_FALSE, 8, 6);
+
+    glBindVertexArray(0);
+    glCheckError(__FILE__,__LINE__);
+
+    //-----------------
+    // Drawing
+    //-----------------
+    
+    shader.use();
+    glBindVertexArray(vaoGhost);
+    texture.bind(GL_TEXTURE0);
+    glDrawArrays(
+        GL_TRIANGLES,      // mode
+        0,                 // first
+        verticeGhost.size()     // count
+    );
+    glBindVertexArray(0);
+    shader.unuse();
+
+    //-----------------
+    // VBO/VAO destruction
+    //-----------------
+    glDeleteVertexArrays(1,&vaoGhost);
+    glDeleteBuffers(1,&vboGhost);
 }
 
 void LevelPart::addBlock(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
@@ -241,4 +305,15 @@ bool LevelPart::testBlock(const glm::vec3& p0,const glm::vec3& p1)
             return true;
     }
     return false;
+}
+
+void LevelPart::addPortal(string portalName,string from, string to,float x,float y,float z,float rx,float ry,float rz)
+{
+    portalTransformed.push_back({
+        Portal::loadFromName(portalName),
+        from,
+        to,
+        {x,y,z},
+        {rx,ry,rz}
+    });
 }

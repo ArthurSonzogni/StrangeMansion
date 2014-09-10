@@ -1,5 +1,20 @@
-block sol     0.0 0.0 0.0     0.0 0.0 0.0
-block sol     1.0 0.0 0.0     0.0 0.0 0.0
-block sol     2.0 0.0 0.0     0.0 0.0 0.0
-block sol     2.0 1.0 0.0     0.0 0.0 0.0
-portal rectangular 0.0 0.0 0.0 0.0 0.0 0.0
+block sol -1 0 0 0 0 0
+block sol -1 -1 0 0 0 0
+block sol -1 -2 0 0 0 0
+block sol -1 -3 0 0 0 0
+block sol -1 -4 0 0 0 0
+block sol -1 -5 0 0 0 0
+block wall -1 -5 0 0 0 1
+block wall -1 -4 0 0 0 1
+block wall -1 -3 0 0 0 1
+block wall -1 -2 0 0 0 1
+block wall -1 -1 0 0 0 1
+block wall -1 0 0 0 0 1
+block wall -1 -5 0 0 0 0.5
+block wall -1 -5 0 0 0 0
+block wall -1 -4 0 0 0 0
+block wall -1 -3 0 0 0 0
+block wall -1 -2 0 0 0 0
+block wall -1 -1 0 0 0 0
+block wall -1 0 0 0 0 0
+portal rectangular B A 0.0 0.0 0.0 0.0 0.0 0.0

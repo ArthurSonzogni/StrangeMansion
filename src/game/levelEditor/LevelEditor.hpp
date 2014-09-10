@@ -60,6 +60,15 @@ class LevelEditor : public Application
         int currentRotation;
         std::string currentBlock;
 
+        struct GhostBlock
+        {
+            bool enabled;
+            std::string blockName;
+            float x,y,z;
+            float rx,ry,rz;
+        };
+        GhostBlock ghostBlock = {false,"",0.0,0.0,0.0,0.0,0.0,0.0};
+
 };
 
 #endif /* end of include guard: LEVELEDITOR_APETXIAH */

@@ -71,7 +71,7 @@ void LevelEditor::step()
         if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
             level.addBlock(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
         else
-            level.addBlockGhost(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
+            ghostBlock = {true,currentBlock,(float)x,(float)y,(float)z,0.0,0.0,currentRotation*0.5f};
     }
 
     // mouse translation
@@ -161,6 +161,13 @@ void LevelEditor::draw()
     s.setUniform("view", view);
     s.setUniform("model", glm::mat4(1.0));
     level.draw();
+
+    // block ghost drawing
+    if (ghostBlock.enabled)
+    {
+        const GhostBlock& g = ghostBlock;// alias
+        level.drawBlockGhost(g.blockName,g.x,g.y,g.z,g.rx,g.ry,g.rz);
+    }
 
 
     // grid
