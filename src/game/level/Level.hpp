@@ -4,8 +4,11 @@
 #include <vector>
 #include <string>
 #include "utils/glm.hpp"
+#include <map>
+#include <tuple>
 
 class LevelPart;
+class PortalTransformed;
 
 class Level
 {
@@ -29,8 +32,9 @@ class Level
         std::vector<LevelPart*> levelPart;
         const std::string& folder;
 
-        void drawRecursivePortals(glm::mat4 const &viewMat, glm::mat4 const &projMat, size_t maxRecursionLevel, size_t recursionLevel);
+        void drawRecursivePortals(LevelPart& levelpart, glm::mat4 const &viewMat, glm::mat4 const &projMat, size_t maxRecursionLevel, size_t recursionLevel);
 
+        std::map<const PortalTransformed*,const PortalTransformed*> portalDestination;
 };
 
 #endif /* end of include guard: LEVEL_2OHC8ATE */

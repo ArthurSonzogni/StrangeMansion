@@ -8,6 +8,7 @@
 #include "Grid.hpp"
 #include <map>
 #include "utils/glm.hpp"
+#include "game/ShaderLib.hpp"
 
 class ShaderProgram;
 
@@ -17,6 +18,7 @@ class LevelEditor : public Application
         LevelEditor();
 
     protected:
+        ShaderLib shaderLib;
         void loop();
         FrameBuffer framebuffer;
         ModelObj obj;

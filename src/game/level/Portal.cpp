@@ -121,3 +121,4 @@ const glm::mat4& Portal::getTransformation() const
 {
     return transformation;
 }
+

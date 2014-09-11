@@ -8,8 +8,8 @@
 #include "LevelBlock.hpp"
 #include "Portal.hpp"
 
+class LevelPart;
 class Portal;
-class ShaderProgram;
 
 
 //  _________________________
@@ -19,7 +19,7 @@ class ShaderProgram;
 //
 struct LevelBlockTransformed
 {
-    LevelBlock& block;
+    const LevelBlock& block;
     glm::vec3 translation;
     glm::vec3 rotation;
     static bool sortByTexture(const LevelBlockTransformed* a, const LevelBlockTransformed* b);
@@ -32,11 +32,17 @@ struct LevelBlockTransformed
 //
 struct PortalTransformed
 {
-    Portal& portal;
+    const Portal& portal;
     std::string from;
     std::string to;
     glm::vec3 translation;
     glm::vec3 rotation;
+    LevelPart& levelpart;
+
+    LevelBlockTransformed getLevelBlockTransformed() const
+    {
+        return {portal.getGeometry(),translation,rotation};
+    }
 };
 
 //  ______________________
@@ -77,6 +83,7 @@ class LevelPart
         void addBlock(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void drawBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz);
         void save();
+        const std::vector<PortalTransformed>& getPortals() const;
 
         bool testBlock(const glm::vec3& p0,const glm::vec3& p1);
 
@@ -89,10 +96,7 @@ class LevelPart
         std::vector<Portal*> portal;
         GLuint vao;
         GLuint vbo;
-        GLuint vaoGhost;
-        GLuint vboGhost;
 
-        ShaderProgram& shader;
 
         std::vector<TextureContainer> texture;
         std::vector<GLContainer::Vertice> vertice;
@@ -106,3 +110,5 @@ class LevelPart
         const std::string filename;
 
 };
+
+void drawLevelBlockTransformed(const LevelBlockTransformed& l);

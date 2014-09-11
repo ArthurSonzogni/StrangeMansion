@@ -3,7 +3,7 @@
 #include <fstream>
 #include <sstream>
 #include "utils/glError.hpp"
-#include "graphic/Shader.hpp"
+#include "game/ShaderLib.hpp"
 #include "utils/Error.hpp"
 #include <algorithm>
 #include "math/collision.hpp"
@@ -18,10 +18,6 @@ bool LevelBlockTransformed::sortByTexture(const LevelBlockTransformed* a, const 
 }
 
 LevelPart::LevelPart(const string& _filename):
-    shader(ShaderProgram::loadFromFile(
-        "shader/geometryPass.vert",
-        "shader/geometryPass.frag"
-    )),
     vbo(0),
     vao(0),
     filename(_filename)
@@ -140,9 +136,9 @@ void LevelPart::build()
 
         // vbo
         glBindBuffer(GL_ARRAY_BUFFER,vbo);
-        shader.setAttribute("position", 3, GL_FALSE, 8, 0);
-        shader.setAttribute("normal"  , 3, GL_FALSE, 8, 3);
-        shader.setAttribute("texCoord", 2, GL_FALSE, 8, 6);
+        ShaderLib::geometry -> setAttribute("position", 3, GL_FALSE, 8, 0);
+        ShaderLib::geometry -> setAttribute("normal"  , 3, GL_FALSE, 8, 3);
+        ShaderLib::geometry -> setAttribute("texCoord", 2, GL_FALSE, 8, 6);
 
     glBindVertexArray(0);
     glCheckError(__FILE__,__LINE__);
@@ -151,9 +147,9 @@ void LevelPart::build()
 
 void LevelPart::draw()
 {
-    //shader.setUniform("texture0",0);
+    //ShaderLib::geometry.setUniform("texture0",0);
 
-    shader.use();
+    ShaderLib::geometry -> use();
     glBindVertexArray(vao);
     for(auto& t : texture)
     {
@@ -165,7 +161,7 @@ void LevelPart::draw()
         );
     }
     glBindVertexArray(0);
-    shader.unuse();
+    ShaderLib::geometry -> unuse();
 }
 
 void LevelPart::addBlockInternal(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
@@ -177,77 +173,6 @@ void LevelPart::addBlockInternal(const string& blockName, float x, float y, floa
     });
 }
 
-void LevelPart::drawBlockGhost(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
-{
-    // load the block named blockName
-    LevelBlock& block = LevelBlock::loadFromName(blockName);
-
-    // get its vertices and textures
-    const std::vector<GLContainer::Vertice>& blockVertices = block.getVertices();
-    Texture& texture = block.getTexture();
-
-    // create the verticeGhost array
-    vector<GLContainer::Vertice> verticeGhost;
-    for(auto& v : blockVertices)
-    {
-        GLContainer::Vertice vTransformed;
-
-        glm::mat4 transformation(1.0);
-        transformation = glm::translate(transformation,{x,y,z});
-        transformation = glm::rotate(transformation,float(rz*M_PI),{0.f,0.f,1.f});
-        transformation = glm::rotate(transformation,float(ry*M_PI),{0.f,1.f,0.f});
-        transformation = glm::rotate(transformation,float(rx*M_PI),{1.f,0.f,0.f});
-
-        glm::vec4 newPosition = (transformation) * glm::vec4(v.position,1.0);
-        glm::vec4 newNormal   = (transformation) * glm::vec4(v.normal  ,0.0);
-        verticeGhost.push_back( GLContainer::Vertice( glm::vec3(newPosition), glm::vec3(newNormal), v.texCoord )); 
-    }
-
-    //-----------------
-    // VBO/VAO creation
-    //-----------------
-
-    // vboGhost
-    glGenBuffers( 1, &vboGhost );
-    glBindBuffer(GL_ARRAY_BUFFER, vboGhost);
-    glBufferData(GL_ARRAY_BUFFER, sizeof(GLContainer::Vertice)*verticeGhost.size(), &verticeGhost[0], GL_STATIC_DRAW);
-    glBindBuffer(GL_ARRAY_BUFFER, 0);
-    glCheckError(__FILE__,__LINE__);
-
-    // vaoGhost
-    glGenVertexArrays( 1, &vaoGhost);
-    glBindVertexArray(vaoGhost);
-
-        // vboGhost
-        glBindBuffer(GL_ARRAY_BUFFER,vboGhost);
-        shader.setAttribute("position", 3, GL_FALSE, 8, 0);
-        shader.setAttribute("normal"  , 3, GL_FALSE, 8, 3);
-        shader.setAttribute("texCoord", 2, GL_FALSE, 8, 6);
-
-    glBindVertexArray(0);
-    glCheckError(__FILE__,__LINE__);
-
-    //-----------------
-    // Drawing
-    //-----------------
-    
-    shader.use();
-    glBindVertexArray(vaoGhost);
-    texture.bind(GL_TEXTURE0);
-    glDrawArrays(
-        GL_TRIANGLES,      // mode
-        0,                 // first
-        verticeGhost.size()     // count
-    );
-    glBindVertexArray(0);
-    shader.unuse();
-
-    //-----------------
-    // VBO/VAO destruction
-    //-----------------
-    glDeleteVertexArrays(1,&vaoGhost);
-    glDeleteBuffers(1,&vboGhost);
-}
 
 void LevelPart::addBlock(const string& blockName, float x, float y, float z, float rx, float ry, float rz)
 {
@@ -314,6 +239,90 @@ void LevelPart::addPortal(string portalName,string from, string to,float x,float
         from,
         to,
         {x,y,z},
+        {rx,ry,rz},
+        *this
+    });
+}
+
+const std::vector<PortalTransformed>& LevelPart::getPortals() const
+{
+    return portalTransformed;
+}
+
+void LevelPart::drawBlockGhost(const std::string& name, float x, float y, float z, float rx, float ry, float rz)
+{
+    drawLevelBlockTransformed({
+        LevelBlock::loadFromName(name),
+        {x,y,z},
         {rx,ry,rz}
     });
+}
+
+////////////////////
+
+void drawLevelBlockTransformed(const LevelBlockTransformed& l)
+{
+    GLuint vaoGhost,vboGhost;
+
+    // create the verticeGhost array
+    vector<GLContainer::Vertice> verticeGhost;
+    for(auto& v : l.block.getVertices())
+    {
+        GLContainer::Vertice vTransformed;
+
+        glm::mat4 transformation(1.0);
+        transformation = glm::translate(transformation,l.translation);
+        transformation = glm::rotate(transformation,float(l.rotation.z*M_PI),{0.f,0.f,1.f});
+        transformation = glm::rotate(transformation,float(l.rotation.y*M_PI),{0.f,1.f,0.f});
+        transformation = glm::rotate(transformation,float(l.rotation.x*M_PI),{1.f,0.f,0.f});
+
+        glm::vec4 newPosition = (transformation) * glm::vec4(v.position,1.0);
+        glm::vec4 newNormal   = (transformation) * glm::vec4(v.normal  ,0.0);
+        verticeGhost.push_back( GLContainer::Vertice( glm::vec3(newPosition), glm::vec3(newNormal), v.texCoord )); 
+    }
+
+    //-----------------
+    // VBO/VAO creation
+    //-----------------
+
+    // vboGhost
+    glGenBuffers( 1, &vboGhost );
+    glBindBuffer(GL_ARRAY_BUFFER, vboGhost);
+    glBufferData(GL_ARRAY_BUFFER, sizeof(GLContainer::Vertice)*verticeGhost.size(), &verticeGhost[0], GL_STATIC_DRAW);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);
+    glCheckError(__FILE__,__LINE__);
+
+    // vaoGhost
+    glGenVertexArrays( 1, &vaoGhost);
+    glBindVertexArray(vaoGhost);
+
+        // vboGhost
+        glBindBuffer(GL_ARRAY_BUFFER,vboGhost);
+        ShaderLib::geometry -> setAttribute("position", 3, GL_FALSE, 8, 0);
+        ShaderLib::geometry -> setAttribute("normal"  , 3, GL_FALSE, 8, 3);
+        ShaderLib::geometry -> setAttribute("texCoord", 2, GL_FALSE, 8, 6);
+
+    glBindVertexArray(0);
+    glCheckError(__FILE__,__LINE__);
+
+    //-----------------
+    // Drawing
+    //-----------------
+    
+    ShaderLib::geometry -> use();
+    glBindVertexArray(vaoGhost);
+    l.block.getTexture().bind(GL_TEXTURE0);
+    glDrawArrays(
+        GL_TRIANGLES,      // mode
+        0,                 // first
+        verticeGhost.size()     // count
+    );
+    glBindVertexArray(0);
+    ShaderLib::geometry -> unuse();
+
+    //-----------------
+    // VBO/VAO destruction
+    //-----------------
+    glDeleteVertexArrays(1,&vaoGhost);
+    glDeleteBuffers(1,&vboGhost);
 }

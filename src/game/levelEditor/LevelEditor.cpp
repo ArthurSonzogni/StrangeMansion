@@ -2,7 +2,7 @@
 #include <GLFW/glfw3.h>
 #include "LevelEditor.hpp"
 #include <iostream>
-#include "graphic/Shader.hpp"
+#include "game/ShaderLib.hpp"
 #include "utils/glError.hpp"
 #include "utils/Texture.hpp"
 #include "system/Input.hpp"
@@ -152,14 +152,10 @@ void LevelEditor::draw()
 
     static float t=0;
     t+=getFrameDeltaTime();
-    ShaderProgram& s(ShaderProgram::loadFromFile(
-        "shader/geometryPass.vert",
-        "shader/geometryPass.frag"
-    ));
-    s.use();
-    s.setUniform("projection", projection);
-    s.setUniform("view", view);
-    s.setUniform("model", glm::mat4(1.0));
+    ShaderLib::geometry -> use();
+    ShaderLib::geometry -> setUniform("projection", projection);
+    ShaderLib::geometry -> setUniform("view", view);
+    ShaderLib::geometry -> setUniform("model", glm::mat4(1.0));
     level.draw();
 
     // block ghost drawing
@@ -172,10 +168,10 @@ void LevelEditor::draw()
 
     // grid
     //glDisable(GL_DEPTH_TEST);
-    grid.getShader().use();
-    grid.getShader().setUniform("projection", projection);
-    grid.getShader().setUniform("view", view);
-    grid.getShader().setUniform("model", glm::mat4(1.0));
+    ShaderLib::geometryColor -> use();
+    ShaderLib::geometryColor -> setUniform("projection", projection);
+    ShaderLib::geometryColor -> setUniform("view", view);
+    ShaderLib::geometryColor -> setUniform("model", glm::mat4(1.0));
     grid.draw();
     //glEnable(GL_DEPTH_TEST);
 

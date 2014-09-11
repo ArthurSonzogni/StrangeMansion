@@ -1,15 +1,11 @@
 #include "Grid.hpp"
 #include "utils/glError.hpp"
-#include "graphic/Shader.hpp"
+#include "game/ShaderLib.hpp"
 #include <vector>
 
 using namespace std;
 
-Grid::Grid():
-    shader(ShaderProgram::loadFromFile(
-        "shader/geometryPassColor.vert",
-        "shader/geometryPassColor.frag"
-    ))
+Grid::Grid()
 {
     vbo=0;
     vao=0;
@@ -24,7 +20,7 @@ Grid::~Grid()
 
 void Grid::draw()
 {
-    shader.use();
+    ShaderLib::geometryColor -> use();
 
     glBindVertexArray(vao);
      
@@ -35,7 +31,7 @@ void Grid::draw()
 	);
 
     glBindVertexArray(0);
-    shader.unuse();
+    ShaderLib::geometryColor -> unuse();
 }
 
 void Grid::setSubvision(int _r)
@@ -79,7 +75,7 @@ void Grid::setSubvision(int _r)
     // vao filling
     glBindVertexArray(vao);
     glBindBuffer(GL_ARRAY_BUFFER,vbo);
-    shader.setAttribute("position", 3, GL_FALSE, 3, 0);
+    ShaderLib::geometryColor -> setAttribute("position", 3, GL_FALSE, 3, 0);
     glBindBuffer(GL_ARRAY_BUFFER,0);
     glBindVertexArray(0);
     glCheckError(__FILE__,__LINE__);
@@ -98,9 +94,4 @@ void Grid::destroy()
         glDeleteVertexArrays(1,&vao);
         vao=0;
     }
-}
-
-ShaderProgram& Grid::getShader()
-{
-    return shader;
 }

@@ -2,7 +2,6 @@
 #include <GLFW/glfw3.h>
 #include "Application3D.hpp"
 #include <iostream>
-#include "graphic/Shader.hpp"
 #include "utils/glError.hpp"
 #include "utils/Texture.hpp"
 #include "system/Input.hpp"

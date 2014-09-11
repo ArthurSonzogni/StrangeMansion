@@ -78,6 +78,8 @@ Application::Application():
     // vsync
     //glfwSwapInterval(false);
 
+
+
 }
 
 GLFWwindow* Application::getWindow() const

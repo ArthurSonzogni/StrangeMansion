@@ -3,8 +3,6 @@
 
 #include <GL/glew.h>
 
-class ShaderProgram;
-
 class Grid
 {
     public:
@@ -12,12 +10,10 @@ class Grid
         ~Grid();
         void draw();
         void setSubvision(int r);
-        ShaderProgram& getShader();
     private:
         void destroy();
         GLuint vao;
         GLuint vbo;
-        ShaderProgram& shader;
         int r;
 };
 

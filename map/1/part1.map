@@ -20,3 +20,5 @@ block sol 3 2 0 0 0 0
 block sol 4 1 0 0 0 0
 block sol 4 2 0 0 0 0
 portal rectangular A B 0.0 0.0 0.0 0.0 0.0 0.0
+portal rectangular C D 0.0 0.0 0.0 0.0 0.0 0.0
+portal rectangular D C 0.0 0.0 0.0 0.0 0.0 0.0
