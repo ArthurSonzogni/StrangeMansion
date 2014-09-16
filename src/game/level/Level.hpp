@@ -17,6 +17,7 @@ class Level
         ~Level();
 
         void draw();
+        void draw(const glm::mat4& view, const glm::mat4& proj);
 
 
         // levelEditor method to edit a level.

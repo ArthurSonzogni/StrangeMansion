@@ -37,7 +37,7 @@ struct PortalTransformed
     std::string to;
     glm::vec3 translation;
     glm::vec3 rotation;
-    LevelPart& levelpart;
+    LevelPart& levelPart;
 
     LevelBlockTransformed getLevelBlockTransformed() const
     {

@@ -5,6 +5,7 @@
 #include <sstream>
 #include "utils/Error.hpp"
 #include "utils/glError.hpp"
+#include "game/ShaderLib.hpp"
 
 using namespace std;
 
@@ -93,7 +94,12 @@ void Level::draw()
     //{
         //l->draw();
     //}
-    drawRecursivePortals(*levelPart[0], glm::mat4(1.0), glm::mat4(1.0), 0, 0);
+    drawRecursivePortals(*levelPart[0], glm::mat4(1.0), glm::mat4(1.0), 1, 0);
+}
+
+void Level::draw(const glm::mat4& view, const glm::mat4& proj)
+{
+    drawRecursivePortals(*levelPart[0], view, proj, 1, 0);
 }
 
 void Level::addLevelPart(const std::string& name)
@@ -127,30 +133,24 @@ bool Level::testBlock(const glm::vec3 p0,const glm::vec3 p1)
     return levelPart[0]->testBlock(p0,p1);
 }
 
-void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &modelMat, glm::mat4 const &projMat, size_t maxRecursionLevel, size_t recursionLevel)
+void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, glm::mat4 const &projection, size_t maxRecursionLevel, size_t recursionLevel)
 {
     for(auto& portal : levelPart.getPortals())
     {
-        //// Disable color and depth drawing
+        // _______________________________________
+        //|                                       |
+        //| draw the portal in the stencil buffer |
+        //|_______________________________________|
+
+        // color
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
         glDepthMask(GL_FALSE);
-
-        //// Disable depth test
+        // depth
         glDisable(GL_DEPTH_TEST);
-
-        //// Enable stencil test, to prevent drawing outside
-        //// region of current portal depth
+        // stencil
         glEnable(GL_STENCIL_TEST);
-
-        //// Fail stencil test when inside of outer portal
-        //// (fail where we should be drawing the inner portal)
         glStencilFunc(GL_NOTEQUAL, recursionLevel, 0xFF);
-
-        //// Increment stencil value on stencil fail
-        //// (on area of inner portal)
         glStencilOp(GL_INCR, GL_KEEP, GL_KEEP);
-
-        //// Enable (writing into) all stencil bits
         glStencilMask(0xFF);
 
         //// Draw portal into stencil buffer
@@ -200,6 +200,7 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &modelMat
         {
             //// Recursion case
             //// Pass our new view matrix and the clipped projection matrix (see above)
+            drawRecursivePortals(portalDestination[&portal]->levelPart,view, projection, maxRecursionLevel, recursionLevel + 1);
             //drawRecursivePortals(destView, portal.clippedProjMat(destView, projMat), maxRecursionLevel, recursionLevel + 1);
         }
 
@@ -226,47 +227,43 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &modelMat
         //portal.draw(viewMat, projMat);
     }
 
-    //// Disable the stencil test and stencil writing
+    ShaderLib::geometry -> use();
+    ShaderLib::geometry -> setUniform("view",view);
+    ShaderLib::geometry -> setUniform("projection",projection);
+
+    // _________________________
+    //|                         |
+    //| draw the portal's depth |
+    //|_________________________|
+
+    // color
+    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    // depth
+    glEnable(GL_DEPTH_TEST);
+    glDepthFunc(GL_ALWAYS);
+    glDepthMask(GL_TRUE);
+    glClear(GL_DEPTH_BUFFER_BIT);
+    // stencil
     glDisable(GL_STENCIL_TEST);
     glStencilMask(0x00);
 
-    //// Disable color writing
-    glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
-
-    //// Enable the depth test, and depth writing.
-    glEnable(GL_DEPTH_TEST);
-    glDepthMask(GL_TRUE);
-
-    //// Make sure we always write the data into the buffer
-    glDepthFunc(GL_ALWAYS);
-
-    //// Clear the depth buffer
-    glClear(GL_DEPTH_BUFFER_BIT);
-
-    //// Draw portals into depth buffer
     for (auto& portal : levelPart.getPortals())
         drawLevelBlockTransformed(portal.getLevelBlockTransformed());
-        //portal.draw(viewMat, projMat)
 
-    //// Reset the depth function to the default
+    // _________________
+    //|                 |
+    //| draw the level  |
+    //|_________________|
+
+    // color
+    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    // depth
+    glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
-
-    //// Enable stencil test and disable writing to stencil buffer
+    // stencil
     glEnable(GL_STENCIL_TEST);
     glStencilMask(0x00);
+    glStencilFunc(GL_NOTEQUAL, recursionLevel + 1, 0xFF);
 
-    //// Draw at stencil >= recursionlevel
-    //// which is at the current level or higher (more to the inside)
-    //// This basically prevents drawing on the outside of this level.
-    glStencilFunc(GL_LEQUAL, recursionLevel, 0xFF);
-
-    //// Enable color and depth drawing again
-    glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    glDepthMask(GL_TRUE);
-
-    //// And enable the depth test
-    glEnable(GL_DEPTH_TEST);
-
-    // Draw scene objects normally, only at recursionLevel
     levelPart.draw();
 }

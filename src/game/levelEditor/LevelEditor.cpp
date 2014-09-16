@@ -141,13 +141,27 @@ void LevelEditor::step()
 
 void LevelEditor::draw()
 {
+    //return;
     //=================================
+    //return;
     framebuffer.bindToWrite();
+    //return;
 
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glDepthMask(GL_TRUE);
+    glStencilMask(0xFF);
+    glClear(GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
     glEnable(GL_DEPTH_TEST);
-    glDisable(GL_BLEND);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    //glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    //glDepthMask(GL_TRUE);
+    //glEnable(GL_DEPTH_TEST);
+    //glDisable(GL_BLEND);
 
 
     static float t=0;
@@ -156,7 +170,7 @@ void LevelEditor::draw()
     ShaderLib::geometry -> setUniform("projection", projection);
     ShaderLib::geometry -> setUniform("view", view);
     ShaderLib::geometry -> setUniform("model", glm::mat4(1.0));
-    level.draw();
+    level.draw(view,projection);
 
     // block ghost drawing
     if (ghostBlock.enabled)
@@ -173,8 +187,8 @@ void LevelEditor::draw()
     ShaderLib::geometryColor -> setUniform("view", view);
     ShaderLib::geometryColor -> setUniform("model", glm::mat4(1.0));
     grid.draw();
-    //glEnable(GL_DEPTH_TEST);
 
+    //return;
     if (Input::isKeyPressed(GLFW_KEY_SPACE)) {
         static int ii=0;
         ii++;
@@ -187,7 +201,7 @@ void LevelEditor::draw()
     } else {
         screenObj.getShader().use();
         framebuffer.bindToRead();
-        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        glDisable(GL_DEPTH_TEST);
         screenObj.getShader().setUniform("positionMap",0);
         screenObj.getShader().setUniform("colorMap",1);
         screenObj.getShader().setUniform("normalMap",2);
