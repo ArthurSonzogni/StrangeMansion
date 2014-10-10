@@ -1,4 +1,4 @@
 name rectangular
-block wall
+block rectangularPortal
 translation -0.4 0.0 0.0
 rotation 0.0 0.0 0.0

@@ -99,6 +99,7 @@ void Level::draw()
 
 void Level::draw(const glm::mat4& view, const glm::mat4& proj)
 {
+    glEnable(GL_CULL_FACE);
     drawRecursivePortals(*levelPart[0], view, proj, 1, 0);
 }
 
@@ -137,16 +138,24 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
 {
     for(auto& portal : levelPart.getPortals())
     {
+        PortalTransformed portalDest = *( portalDestination[&portal] );
+
         // _______________________________________
         //|                                       |
         //| draw the portal in the stencil buffer |
         //|_______________________________________|
+
+        // shader use
+        ShaderLib::geometry -> use();
+        ShaderLib::geometry -> setUniform("view",view);
+        ShaderLib::geometry -> setUniform("projection",projection);
 
         // color
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
         glDepthMask(GL_FALSE);
         // depth
         glDisable(GL_DEPTH_TEST);
+        glDepthMask(GL_FALSE);
         // stencil
         glEnable(GL_STENCIL_TEST);
         glStencilFunc(GL_NOTEQUAL, recursionLevel, 0xFF);
@@ -162,10 +171,17 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         //glm::mat4 destView = viewMat * portal.modelMat()
             //* glm::rotate(glm::mat4(1.0f), M_PI, glm::vec3(0.0f, 1.0f, 0.0f) * portal.orientation())
             //* glm::inverse(portal.destination()->modelMat());
+        glm::mat4 destView =
+                view
+            *   portal.view
+            *   glm::inverse(portalDest.view)
+            *   glm::rotate(glm::mat4(1.0f),float(M_PI),glm::vec3(0.0f,0.0f,1.0f))
+            ;
 
         //// Base case, render inside of inner portal
         if (recursionLevel == maxRecursionLevel)
         {
+            continue;
             //// Enable color and depth drawing
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
             glDepthMask(GL_TRUE);
@@ -200,26 +216,21 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         {
             //// Recursion case
             //// Pass our new view matrix and the clipped projection matrix (see above)
-            drawRecursivePortals(portalDestination[&portal]->levelPart,view, projection, maxRecursionLevel, recursionLevel + 1);
+            drawRecursivePortals(portalDest.levelPart,destView, projection, maxRecursionLevel, recursionLevel + 1);
             //drawRecursivePortals(destView, portal.clippedProjMat(destView, projMat), maxRecursionLevel, recursionLevel + 1);
         }
 
-        //// Disable color and depth drawing
+        // shader use
+        ShaderLib::geometry -> use();
+        ShaderLib::geometry -> setUniform("view",view);
+        ShaderLib::geometry -> setUniform("projection",projection);
+        // color
         glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
         glDepthMask(GL_FALSE);
-
-        //// Enable stencil test and stencil drawing
+        // stencil
         glEnable(GL_STENCIL_TEST);
         glStencilMask(0xFF);
-
-        //// Fail stencil test when inside of our newly rendered
-        //// inner portal
         glStencilFunc(GL_NOTEQUAL, recursionLevel + 1, 0xFF);
-
-        //// Decrement stencil value on stencil fail
-        //// This resets the incremented values to what they were before,
-        //// eventually ending up with a stencil buffer full of zero's again
-        //// after the last (outer) step.
         glStencilOp(GL_DECR, GL_KEEP, GL_KEEP);
 
         //// Draw portal into stencil buffer
@@ -227,14 +238,15 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         //portal.draw(viewMat, projMat);
     }
 
-    ShaderLib::geometry -> use();
-    ShaderLib::geometry -> setUniform("view",view);
-    ShaderLib::geometry -> setUniform("projection",projection);
 
     // _________________________
     //|                         |
     //| draw the portal's depth |
     //|_________________________|
+
+    ShaderLib::geometry -> use();
+    ShaderLib::geometry -> setUniform("view",view);
+    ShaderLib::geometry -> setUniform("projection",projection);
 
     // color
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
@@ -255,15 +267,21 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
     //| draw the level  |
     //|_________________|
 
+    ShaderLib::geometry -> use();
+    ShaderLib::geometry -> setUniform("view",view);
+    ShaderLib::geometry -> setUniform("projection",projection);
+
     // color
     glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     // depth
+    glEnable(GL_DEPTH_TEST);
     glDepthMask(GL_TRUE);
     glDepthFunc(GL_LESS);
     // stencil
     glEnable(GL_STENCIL_TEST);
-    glStencilMask(0x00);
-    glStencilFunc(GL_NOTEQUAL, recursionLevel + 1, 0xFF);
+    glStencilMask(0xFF);
+    glStencilFunc(GL_EQUAL, recursionLevel, 0xFF);
+    glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 
     levelPart.draw();
 }

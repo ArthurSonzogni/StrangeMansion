@@ -73,6 +73,26 @@ LevelPart::LevelPart(const string& _filename):
     build();
 }
 
+glm::mat4 getTransformation(float x, float y, float z, float rx, float ry, float rz)
+{
+    glm::mat4 transformation(1.0);
+    transformation = glm::translate(transformation,{x,y,z});
+    transformation = glm::rotate(transformation,float(rz*M_PI),{0.f,0.f,1.f});
+    transformation = glm::rotate(transformation,float(ry*M_PI),{0.f,1.f,0.f});
+    transformation = glm::rotate(transformation,float(rx*M_PI),{1.f,0.f,0.f});
+    return transformation;
+}
+
+glm::mat4 getTransformation(const glm::vec3 translation, const glm::vec3 rotation)
+{
+    glm::mat4 transformation(1.0);
+    transformation = glm::translate(transformation,translation);
+    transformation = glm::rotate(transformation,float(rotation.z*M_PI),{0.f,0.f,1.f});
+    transformation = glm::rotate(transformation,float(rotation.y*M_PI),{0.f,1.f,0.f});
+    transformation = glm::rotate(transformation,float(rotation.x*M_PI),{1.f,0.f,0.f});
+    return transformation;
+}
+
 void LevelPart::build()
 {
     glCheckError(__FILE__,__LINE__);
@@ -109,12 +129,7 @@ void LevelPart::build()
         {
             GLContainer::Vertice vTransformed;
 
-            glm::mat4 transformation(1.0);
-            transformation = glm::translate(transformation,it->translation);
-            transformation = glm::rotate(transformation,float(it->rotation.z*M_PI),{0.f,0.f,1.f});
-            transformation = glm::rotate(transformation,float(it->rotation.y*M_PI),{0.f,1.f,0.f});
-            transformation = glm::rotate(transformation,float(it->rotation.x*M_PI),{1.f,0.f,0.f});
-
+            glm::mat4 transformation = getTransformation(it->translation,it->rotation);
             glm::vec4 newPosition = (transformation) * glm::vec4(v.position,1.0);
             glm::vec4 newNormal   = (transformation) * glm::vec4(v.normal  ,0.0);
             vertice.push_back( GLContainer::Vertice( glm::vec3(newPosition), glm::vec3(newNormal), v.texCoord )); 
@@ -234,12 +249,15 @@ bool LevelPart::testBlock(const glm::vec3& p0,const glm::vec3& p1)
 
 void LevelPart::addPortal(string portalName,string from, string to,float x,float y,float z,float rx,float ry,float rz)
 {
+    const glm::mat4 viewMat = getTransformation(x,y,z,rx,ry,rz);
+
     portalTransformed.push_back({
         Portal::loadFromName(portalName),
         from,
         to,
         {x,y,z},
         {rx,ry,rz},
+        viewMat,
         *this
     });
 }
@@ -270,11 +288,7 @@ void drawLevelBlockTransformed(const LevelBlockTransformed& l)
     {
         GLContainer::Vertice vTransformed;
 
-        glm::mat4 transformation(1.0);
-        transformation = glm::translate(transformation,l.translation);
-        transformation = glm::rotate(transformation,float(l.rotation.z*M_PI),{0.f,0.f,1.f});
-        transformation = glm::rotate(transformation,float(l.rotation.y*M_PI),{0.f,1.f,0.f});
-        transformation = glm::rotate(transformation,float(l.rotation.x*M_PI),{1.f,0.f,0.f});
+        glm::mat4 transformation = getTransformation(l.translation,l.rotation);
 
         glm::vec4 newPosition = (transformation) * glm::vec4(v.position,1.0);
         glm::vec4 newNormal   = (transformation) * glm::vec4(v.normal  ,0.0);

@@ -1,24 +1,7 @@
-block sol 2 1 0 0 0 0
-block sol 1 1 0 0 0 0
-block sol 1 2 0 0 0 0
-block sol 1 2 0 0 0 0
-block sol 0 2 0 0 0 0
 block sol 0 1 0 0 0 0
-block sol 2 2 0 0 0 0
-block sol -1 1 0 0 0 0
-block sol -1 2 0 0 0 0
-block sol -2 2 0 0 0 0
-block sol -2 1 0 0 0 0
-block sol -3 1 0 0 0 0
-block sol -3 2 0 0 0 0
-block sol -4 2 0 0 0 0
-block sol -4 1 0 0 0 0
-block sol -5 2 0 0 0 0
-block sol -5 1 0 0 0 0
-block sol 3 1 0 0 0 0
-block sol 3 2 0 0 0 0
-block sol 4 1 0 0 0 0
-block sol 4 2 0 0 0 0
-portal rectangular A B 0.0 0.0 0.0 0.0 0.0 0.0
-portal rectangular C D 0.0 0.0 0.0 0.0 0.0 0.0
-portal rectangular D C 0.0 0.0 0.0 0.0 0.0 0.0
+block sol 0 2 0 0 0 0
+block wall -1 0 0 0 0 1
+block wall 0 -1 0 0 0 1.5
+block wall 1 0 0 0 0 0
+block sol 0 0 1 0 0 0
+portal rectangular A B 0.0 1.0 0.0 0.0 0.0 0.5

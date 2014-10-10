@@ -112,11 +112,12 @@ void LevelEditor::step()
     if (Input::isKeyPressed(GLFW_KEY_TAB))
     {
         static int i = 0;
-        switch(i++%3)
+        switch(i++%4)
         {
             case 0 :  currentBlock = "sol"; break;
             case 1 :  currentBlock = "corner"; break;
             case 2 :  currentBlock = "wall"; break;
+            case 3 :  currentBlock = "roof"; break;
             default: break;
         }
     }
