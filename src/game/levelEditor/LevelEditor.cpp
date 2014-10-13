@@ -20,7 +20,7 @@ LevelEditor::LevelEditor():
         "shader/compose.frag"
     )),
     framebuffer(getWidth(),getHeight(),3),
-    level("map/1"),
+    level("map/2"),
     drawingMode(false)
 {
     glCheckError(__FILE__,__LINE__);

@@ -44,6 +44,8 @@ struct PortalTransformed
     {
         return {portal.getGeometry(),translation,rotation};
     }
+
+    glm::mat4 clippedProjMat(glm::mat4 const &viewMat, glm::mat4 const &projMat) const;
 };
 
 //  ______________________

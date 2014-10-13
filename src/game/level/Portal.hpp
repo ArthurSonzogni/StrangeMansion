@@ -25,7 +25,6 @@ class Portal
         // getter
         const std::string& getName() const;
         const LevelBlock& getGeometry() const;
-        const glm::mat4& getTransformation() const;
 
     private:
 
@@ -34,7 +33,6 @@ class Portal
 
         // content
         LevelBlock* geometry;
-        glm::mat4 transformation;
         std::string name;
 };
 

@@ -99,8 +99,8 @@ void Level::draw()
 
 void Level::draw(const glm::mat4& view, const glm::mat4& proj)
 {
-    glEnable(GL_CULL_FACE);
-    drawRecursivePortals(*levelPart[0], view, proj, 1, 0);
+    //glEnable(GL_CULL_FACE);
+    drawRecursivePortals(*levelPart[0], view, proj, 3, 0);
 }
 
 void Level::addLevelPart(const std::string& name)
@@ -138,6 +138,14 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
 {
     for(auto& portal : levelPart.getPortals())
     {
+
+        // check if orientation of the portal is okay
+        glm::vec4 eyeToPortal = view * glm::vec4(portal.translation,1.0);
+        glm::vec4 portalDirection = view*portal.view*glm::vec4(1.0,0.0,0.0,0.0);
+        if (glm::dot(glm::vec3(eyeToPortal),glm::vec3(portalDirection)) > 0.001f)
+            continue;
+        
+
         PortalTransformed portalDest = *( portalDestination[&portal] );
 
         // _______________________________________
@@ -174,14 +182,14 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         glm::mat4 destView =
                 view
             *   portal.view
-            *   glm::inverse(portalDest.view)
             *   glm::rotate(glm::mat4(1.0f),float(M_PI),glm::vec3(0.0f,0.0f,1.0f))
+            *   glm::inverse(portalDest.view)
             ;
 
         //// Base case, render inside of inner portal
         if (recursionLevel == maxRecursionLevel)
         {
-            continue;
+            //continue;
             //// Enable color and depth drawing
             glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
             glDepthMask(GL_TRUE);
@@ -209,6 +217,7 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
             //// use an edited projection matrix to set the near plane to the portal plane
             //drawNonPortals(destView, portal.clippedProjMat(destView, projMat));
             ////drawNonPortals(destView, projMat);
+            portalDest.levelPart.draw();
             
             //cout << (unsigned long)(portalDestination[&(portal)]) <<endl;
         }
@@ -217,7 +226,8 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
             //// Recursion case
             //// Pass our new view matrix and the clipped projection matrix (see above)
             drawRecursivePortals(portalDest.levelPart,destView, projection, maxRecursionLevel, recursionLevel + 1);
-            //drawRecursivePortals(destView, portal.clippedProjMat(destView, projMat), maxRecursionLevel, recursionLevel + 1);
+            //drawRecursivePortals(portalDest.levelPart,destView, portalDest.clippedProjMat(destView,projection), maxRecursionLevel, recursionLevel + 1);
+            //drawRecursivePortals(destView, portal.lippedProjMat(destView, projMat), maxRecursionLevel, recursionLevel + 1);
         }
 
         // shader use
@@ -260,7 +270,14 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
     glStencilMask(0x00);
 
     for (auto& portal : levelPart.getPortals())
+    {
+        // check if orientation of the portal is okay
+        glm::vec4 eyeToPortal = view * glm::vec4(portal.translation,1.0);
+        glm::vec4 portalDirection = view*portal.view*glm::vec4(1.0,0.0,0.0,0.0);
+        if (glm::dot(glm::vec3(eyeToPortal),glm::vec3(portalDirection)) > 0.001f)
+            continue;
         drawLevelBlockTransformed(portal.getLevelBlockTransformed());
+    }
 
     // _________________
     //|                 |
