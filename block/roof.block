@@ -1,0 +1,8 @@
+name roof
+texture texture/texture.png
+vertice -0.5 -0.5 0.5 0.0 0.0 1.0  0.0 0.0
+vertice +0.5 -0.5 0.5 0.0 0.0 1.0  1.0 0.0
+vertice +0.5 +0.5 0.5 0.0 0.0 1.0  1.0 1.0
+vertice -0.5 +0.5 0.5 0.0 0.0 1.0  0.0 1.0
+face 1 0 2
+face 2 0 3

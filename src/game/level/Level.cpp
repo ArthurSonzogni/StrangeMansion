@@ -100,7 +100,7 @@ void Level::draw()
 void Level::draw(const glm::mat4& view, const glm::mat4& proj)
 {
     //glEnable(GL_CULL_FACE);
-    drawRecursivePortals(*levelPart[0], view, proj, 3, 0);
+    drawRecursivePortals(*levelPart[0], view, proj, 2, 0);
 }
 
 void Level::addLevelPart(const std::string& name)
@@ -260,6 +260,7 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
 
     // color
     glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+    //glColorMask(GL_TRUE,GL_FALSE,GL_FALSE,GL_FALSE);
     // depth
     glEnable(GL_DEPTH_TEST);
     glDepthFunc(GL_ALWAYS);
@@ -274,7 +275,7 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         // check if orientation of the portal is okay
         glm::vec4 eyeToPortal = view * glm::vec4(portal.translation,1.0);
         glm::vec4 portalDirection = view*portal.view*glm::vec4(1.0,0.0,0.0,0.0);
-        if (glm::dot(glm::vec3(eyeToPortal),glm::vec3(portalDirection)) > 0.001f)
+        if (glm::dot(glm::vec3(eyeToPortal),glm::vec3(portalDirection)) > 0.5f)
             continue;
         drawLevelBlockTransformed(portal.getLevelBlockTransformed());
     }

@@ -1,0 +1,8 @@
+block sol 0 0 0 0 0 0
+block sol 1 0 0 0 0 0
+block sol 1 1 0 0 0 0
+block sol 0 1 0 0 0 0
+portal rectangular A B -0.5  0.0 0.0 0.0 0.0 0.0
+portal rectangular B A +0.5  0.0 0.0 0.0 0.0 1.0
+portal rectangular C D  0.0 -0.5 0.0 0.0 0.0 0.5
+portal rectangular D C  0.0 +0.5 0.0 0.0 0.0 -0.5

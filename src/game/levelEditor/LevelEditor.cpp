@@ -65,9 +65,20 @@ void LevelEditor::step()
     // mouse put element
     {
         glm::vec3 v = mouseIntersectCurrentPlan({mouseX,mouseY});
-        int x = round(v.x);
-        int y = round(v.y);
-        int z = 0;
+        float x = v.x;
+        float y = v.y;
+        float z = 0;
+        if (Input::isKeyHold(GLFW_KEY_T))
+        {
+            float precision = 4;
+            x = round(x*precision)/precision;
+            y = round(y*precision)/precision;
+        }
+        else
+        {
+            x = round(x);
+            y = round(y);
+        }
         if (Input::isMouseReleased(GLFW_MOUSE_BUTTON_LEFT))
             level.addBlock(currentBlock,x,y,z,0.0,0.0,currentRotation*0.5);
         else
@@ -281,6 +292,7 @@ void LevelEditor::assignKeysMapping()
     keys[KEY_CAMERA_TURN_ZN] = GLFW_KEY_U;
     keys[KEY_CAMERA_TURN_ZP] = GLFW_KEY_O;
     keys[KEY_SAVE] = GLFW_KEY_Z;
+    //keys[KEY_CTRL] = GLFW_KEY_LEFT_CONTROL;
 }
 
 glm::vec3 LevelEditor::mouseIntersectCurrentPlan(glm::vec2 mouse)
