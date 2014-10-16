@@ -225,8 +225,8 @@ void Level::drawRecursivePortals(LevelPart& levelPart, glm::mat4 const &view, gl
         {
             //// Recursion case
             //// Pass our new view matrix and the clipped projection matrix (see above)
-            drawRecursivePortals(portalDest.levelPart,destView, projection, maxRecursionLevel, recursionLevel + 1);
-            //drawRecursivePortals(portalDest.levelPart,destView, portalDest.clippedProjMat(destView,projection), maxRecursionLevel, recursionLevel + 1);
+            //drawRecursivePortals(portalDest.levelPart,destView, projection, maxRecursionLevel, recursionLevel + 1);
+            drawRecursivePortals(portalDest.levelPart,destView, portalDest.clippedProjMat(destView,projection), maxRecursionLevel, recursionLevel + 1);
             //drawRecursivePortals(destView, portal.lippedProjMat(destView, projMat), maxRecursionLevel, recursionLevel + 1);
         }
 

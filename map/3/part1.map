@@ -1,8 +1,59 @@
-block sol 0 0 0 0 0 0
 block sol 1 0 0 0 0 0
-block sol 1 1 0 0 0 0
-block sol 0 1 0 0 0 0
-portal rectangular A B -0.5  0.0 0.0 0.0 0.0 0.0
-portal rectangular B A +0.5  0.0 0.0 0.0 0.0 1.0
-portal rectangular C D  0.0 -0.5 0.0 0.0 0.0 0.5
-portal rectangular D C  0.0 +0.5 0.0 0.0 0.0 -0.5
+block sol 6 1 0 0 0 0
+block sol 2 0 0 0 0 0
+block sol 6 2 0 0 0 0
+block roof 0 0 0 0 0 0
+block roof 6 -0 0 0 0 0
+block wall 7 1 0 0 0 0.5
+block wall 5 1 0 0 0 0.5
+block wall 1 1 0 0 0 0
+block wall 1 -1 0 0 0 0
+block wall -0 2 0 0 0 0.5
+block wall -1 1 0 0 0 1
+block wall -1 -1 0 0 0 1
+block wall -0 -2 0 0 0 1.5
+block roof -0 -1 0 0 0 0
+block roof -0 1 0 0 0 0
+block roof 7 0 0 0 0 0
+block roof 5 0 0 0 0 0
+block wall 4 -0 0 0 0 1
+block wall 5 -1 0 0 0 1.5
+block wall 6 -1 0 0 0 1.5
+block wall 7 -1 0 0 0 1.5
+block wall 8 -0 0 0 0 0
+block wall 6 1 0 0 0 0
+block wall 6 2 0 0 0 0
+block wall 6 1 0 0 0 1
+block wall 6 2 0 0 0 1
+block sol 6 3 0 0 0 1
+block sol 6 4 0 0 0 1
+block wall -1 0 0 0 0 1
+block roof 5 1 0 0 0 1
+block roof 5 2 0 0 0 1
+block roof 7 2 0 0 0 1
+block roof 7 1 0 0 0 1
+block wall 7 3 0 0 0 0.5
+block wall 5 3 0 0 0 0.5
+block wall 4 2 0 0 0 1
+block wall 4 1 0 0 0 1
+block wall 8 1 0 0 0 0
+block wall 8 2 0 0 0 0
+block wall 1 -0 0 0 0 0.5
+block wall 1 -0 0 0 0 1.5
+block wall 2 1 0 0 0 1.5
+block wall 2 1 0 0 0 1.5
+block wall 1 2 0 0 0 0
+block wall 1 2 0 0 0 0.5
+block wall 2 1 0 0 0 0
+block wall 2 -1 0 0 0 0
+block wall 1 -2 0 0 0 1.5
+block roof 1 -1 0 0 0 1.5
+block roof 1 1 0 0 0 1.5
+block roof 1 2 0 0 0 1.5
+block roof 1 2 0 0 0 1.5
+block roof 2 2 0 0 0 1.5
+block wall 3 2 0 0 0 0
+block wall 2 3 0 0 0 0.5
+block wall 1 3 0 0 0 0.5
+portal rectangular A B  0.5 0.0 0.0 0.0 0.0 0.0
+portal rectangular B A  6.0 0.5 0.0 0.0 0.0 0.5

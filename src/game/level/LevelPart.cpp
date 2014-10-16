@@ -344,12 +344,22 @@ void drawLevelBlockTransformed(const LevelBlockTransformed& l)
 glm::mat4 PortalTransformed::clippedProjMat(glm::mat4 const &viewMat, glm::mat4 const &projMat) const
 {
     float dist = glm::length(translation);
-    //glm::vec4 clipPlane(glm::vec3(0.0f, 0.0f, -1.0f), dist);
-    glm::vec4 clipPlane( glm::vec3(0.0f, 0.0f, -1.0f), dist);
-    clipPlane = -glm::inverse(glm::transpose(viewMat)) * clipPlane;
+    glm::vec3 normal = glm::mat3(view) * glm::vec3(1.0f, 0.0f, 0.0f);
+    glm::vec4 clipPlane = glm::vec4(normal,-glm::dot(normal,translation));
+    clipPlane = glm::inverse(glm::transpose(viewMat)) * clipPlane;
+
+    //glm::vec4 clipPlane = glm::vec4(0.0f,0.0f,-1.0f,-1.0f);
+    //glm::vec4 clipPlane = glm::vec4(1.0f,0.0f,0.0f,1.0f);
+    //clipPlane = viewMat * clipPlane;
+    //clipPlane.xu-= translation.x;
+    //clipPlane.y -= translation.y;
+    //clipPlane.z -= translation.z;
+    //clipPlane.w = dist;
+    //clipPlane =  view * clipPlane;
+
 
     //if (clipPlane.w > 0.0f)
-        return projMat;
+        //return projMat;
 
     glm::vec4 q = glm::inverse(projMat) * glm::vec4(
         glm::sign(clipPlane.x),
